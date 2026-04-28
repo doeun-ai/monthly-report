@@ -1,0 +1,306 @@
+
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  #root { font-family: 'DM Sans', sans-serif; padding: 1.5rem 0; }
+  .slide-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    min-height: 380px;
+  }
+  .img-panel {
+    width: 42%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-background-secondary);
+    position: relative;
+    overflow: hidden;
+  }
+  .img-panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .badge-new {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: #1565C0;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .info-panel {
+    flex: 1;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .product-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .sku-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin: 0 0 20px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    margin-bottom: 20px;
+  }
+  .info-item { display: flex; flex-direction: column; gap: 3px; }
+  .info-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+  .info-value.accent {
+    color: #1565C0;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .info-value.date-accent {
+    color: #0F6E56;
+    font-weight: 600;
+  }
+  .note-box {
+    background: var(--color-background-secondary);
+    border-left: 3px solid #1565C0;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+  }
+  .note-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+  }
+  .note-text {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .nav-btn {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    color: var(--color-text-primary);
+  }
+  .nav-btn:hover { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--color-border-secondary);
+    transition: background 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .dot.active { background: #1565C0; transform: scale(1.3); }
+  .slide-wrapper {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .slide-wrapper.exit-left { opacity: 0; transform: translateX(-24px); }
+  .slide-wrapper.exit-right { opacity: 0; transform: translateX(24px); }
+  .divider {
+    height: 0.5px;
+    background: var(--color-border-tertiary);
+    margin: 16px 0;
+  }
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .report-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.02em;
+  }
+  .counter-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+  }
+</style>
+<script>
+const { useState, useEffect, useRef } = React;
+
+const productData = [
+  {
+    id: 1,
+    name: "에어글로우 울트라 슬림 재킷",
+    sku: "JKT-2025-001",
+    category: "아우터",
+    quantity: 350,
+    revenue: "₩52,430,000",
+    stockDate: "2025-05-08",
+    launchDate: "2025-05-15",
+    note: "시즌 대표 상품. 광고 소재 우선 적용 예정. MD 추천 노출 요청.",
+    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80"
+  },
+  {
+    id: 2,
+    name: "무드라이트 드레이프 원피스",
+    sku: "DRS-2025-042",
+    category: "원피스",
+    quantity: 210,
+    revenue: "₩38,850,000",
+    stockDate: "2025-05-10",
+    launchDate: "2025-05-17",
+    note: "바이어 선주문 완료. 물류팀 우선 배치 협의 필요.",
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80"
+  },
+  {
+    id: 3,
+    name: "어반코어 하이웨이스트 팬츠",
+    sku: "PNT-2025-017",
+    category: "하의",
+    quantity: 480,
+    revenue: "₩61,200,000",
+    stockDate: "2025-05-05",
+    launchDate: "2025-05-12",
+    note: "컬러웨이 3종 동시 출시. CS팀 사이즈 가이드 사전 공유 요청.",
+    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80"
+  }
+];
+
+function ArrowLeft() {
+  return React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+    React.createElement('polyline', { points: '15 18 9 12 15 6' })
+  );
+}
+function ArrowRight() {
+  return React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+    React.createElement('polyline', { points: '9 18 15 12 9 6' })
+  );
+}
+
+function App() {
+  const [idx, setIdx] = useState(0);
+  const [anim, setAnim] = useState('');
+  const p = productData[idx];
+
+  function goTo(next, dir) {
+    setAnim(dir === 1 ? 'exit-left' : 'exit-right');
+    setTimeout(() => {
+      setIdx(next);
+      setAnim('');
+    }, 220);
+  }
+
+  function prev() { if (idx > 0) goTo(idx - 1, -1); }
+  function next() { if (idx < productData.length - 1) goTo(idx + 1, 1); }
+
+  return React.createElement('div', null,
+    React.createElement('div', { className: 'header-bar' },
+      React.createElement('span', { className: 'report-title' }, '이번 달 신제품 출시 라인업 보고'),
+      React.createElement('span', { className: 'counter-text' }, (idx + 1) + ' / ' + productData.length)
+    ),
+
+    React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+      React.createElement('button', { className: 'nav-btn', onClick: prev, disabled: idx === 0 },
+        React.createElement(ArrowLeft)
+      ),
+
+      React.createElement('div', { style: { flex: 1, overflow: 'hidden' } },
+        React.createElement('div', { className: 'slide-wrapper ' + anim },
+          React.createElement('div', { className: 'slide-card' },
+            React.createElement('div', { className: 'img-panel' },
+              React.createElement('img', { src: p.image, alt: p.name }),
+              React.createElement('div', { className: 'badge-new' }, 'NEW')
+            ),
+            React.createElement('div', { className: 'info-panel' },
+              React.createElement('div', null,
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' } },
+                  React.createElement('span', { style: { fontSize: '11px', fontWeight: 600, color: '#1565C0', background: '#E6F1FB', padding: '2px 8px', borderRadius: '20px' } }, p.category)
+                ),
+                React.createElement('h2', { className: 'product-name' }, p.name),
+                React.createElement('p', { className: 'sku-code' }, 'SKU: ' + p.sku)
+              ),
+
+              React.createElement('div', { className: 'info-grid' },
+                React.createElement('div', { className: 'info-item' },
+                  React.createElement('span', { className: 'info-label' }, '수량'),
+                  React.createElement('span', { className: 'info-value' }, p.quantity.toLocaleString() + ' 개')
+                ),
+                React.createElement('div', { className: 'info-item' },
+                  React.createElement('span', { className: 'info-label' }, '매출볼륨 (VAT 포함)'),
+                  React.createElement('span', { className: 'info-value accent' }, p.revenue)
+                ),
+                React.createElement('div', { className: 'info-item' },
+                  React.createElement('span', { className: 'info-label' }, '입고 일정'),
+                  React.createElement('span', { className: 'info-value date-accent' }, p.stockDate)
+                ),
+                React.createElement('div', { className: 'info-item' },
+                  React.createElement('span', { className: 'info-label' }, '출시 일정'),
+                  React.createElement('span', { className: 'info-value date-accent' }, p.launchDate)
+                )
+              ),
+
+              React.createElement('div', { className: 'note-box' },
+                React.createElement('div', { className: 'note-label' }, '비고'),
+                React.createElement('div', { className: 'note-text' }, p.note)
+              )
+            )
+          )
+        )
+      ),
+
+      React.createElement('button', { className: 'nav-btn', onClick: next, disabled: idx === productData.length - 1 },
+        React.createElement(ArrowRight)
+      )
+    ),
+
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' } },
+      productData.map((_, i) =>
+        React.createElement('div', {
+          key: i,
+          className: 'dot ' + (i === idx ? 'active' : ''),
+          onClick: () => i !== idx && goTo(i, i > idx ? 1 : -1)
+        })
+      )
+    )
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
+</script>
