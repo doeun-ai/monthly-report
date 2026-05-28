@@ -1,306 +1,757 @@
-
-<div id="root"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실적 리뷰 보고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
-  #root { font-family: 'DM Sans', sans-serif; padding: 1.5rem 0; }
-  .slide-card {
-    background: var(--color-background-primary);
-    border: 0.5px solid var(--color-border-secondary);
-    border-radius: 20px;
-    overflow: hidden;
-    display: flex;
-    min-height: 380px;
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #F5F4F0;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
   }
-  .img-panel {
-    width: 42%;
-    flex-shrink: 0;
+
+  /* ───────────── 탭 네비게이션 ───────────── */
+  .tab-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #1A1A1A;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: var(--color-background-secondary);
-    position: relative;
-    overflow: hidden;
+    gap: 0;
+    padding: 0 40px;
+    border-bottom: 2px solid #333;
+    height: 56px;
   }
-  .img-panel img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .badge-new {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    background: #1565C0;
-    color: #fff;
+
+  .tab-logo {
+    font-family: 'DM Mono', monospace;
     font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    padding: 3px 10px;
-    border-radius: 20px;
+    letter-spacing: 3px;
+    color: #666;
+    text-transform: uppercase;
+    padding-right: 32px;
+    border-right: 1px solid #333;
+    margin-right: 32px;
+    white-space: nowrap;
+  }
+
+  .tab-btn {
+    position: relative;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .tab-btn:hover {
+    color: #ccc;
+  }
+
+  .tab-btn.active {
+    color: #fff;
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #5B7F5E;
+  }
+
+  .tab-btn.active.blue::after {
+    background: #6B8CAE;
+  }
+
+  .tab-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: #2a2a2a;
+    color: #666;
     text-transform: uppercase;
   }
-  .info-panel {
-    flex: 1;
-    padding: 28px 28px 24px;
+
+  .tab-btn.active .tab-tag {
+    background: rgba(91,127,94,0.2);
+    color: #5B7F5E;
+  }
+
+  .tab-btn.active.blue .tab-tag {
+    background: rgba(107,140,174,0.2);
+    color: #6B8CAE;
+  }
+
+  /* ───────────── 페이지 컨테이너 ───────────── */
+  .page {
+    display: none;
+  }
+  .page.active {
+    display: block;
+  }
+
+  /* ───────────── 페이지 1: MULTI IP 1Q ───────────── */
+  .page-1q {
+    min-height: calc(100vh - 56px);
+    background: #F0EEE8;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 60px 40px;
   }
-  .product-name {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 0 0 4px;
-    line-height: 1.3;
+
+  .page-1q-header {
+    text-align: center;
+    margin-bottom: 48px;
   }
-  .sku-code {
+
+  .page-1q-tag {
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--color-text-tertiary);
-    margin: 0 0 20px;
-  }
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 20px;
-    margin-bottom: 20px;
-  }
-  .info-item { display: flex; flex-direction: column; gap: 3px; }
-  .info-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-  }
-  .info-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-primary);
-  }
-  .info-value.accent {
-    color: #1565C0;
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .info-value.date-accent {
-    color: #0F6E56;
-    font-weight: 600;
-  }
-  .note-box {
-    background: var(--color-background-secondary);
-    border-left: 3px solid #1565C0;
-    border-radius: 0 8px 8px 0;
-    padding: 10px 14px;
-  }
-  .note-label {
     font-size: 10px;
-    font-weight: 600;
-    color: var(--color-text-tertiary);
+    letter-spacing: 4px;
+    color: #6B8CAE;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 4px;
-  }
-  .note-text {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-  }
-  .nav-btn {
-    background: var(--color-background-primary);
-    border: 0.5px solid var(--color-border-secondary);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.15s, border-color 0.15s;
-    color: var(--color-text-primary);
-  }
-  .nav-btn:hover { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
-  .nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--color-border-secondary);
-    transition: background 0.2s, transform 0.2s;
-    cursor: pointer;
-  }
-  .dot.active { background: #1565C0; transform: scale(1.3); }
-  .slide-wrapper {
-    opacity: 1;
-    transform: translateX(0);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-  }
-  .slide-wrapper.exit-left { opacity: 0; transform: translateX(-24px); }
-  .slide-wrapper.exit-right { opacity: 0; transform: translateX(24px); }
-  .divider {
-    height: 0.5px;
-    background: var(--color-border-tertiary);
-    margin: 16px 0;
-  }
-  .header-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     margin-bottom: 16px;
   }
-  .report-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    letter-spacing: 0.02em;
+
+  .page-1q-title {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #1A1A1A;
+    margin-bottom: 8px;
   }
-  .counter-text {
+
+  .page-1q-title span {
+    color: #6B8CAE;
+  }
+
+  .page-1q-sub {
+    font-size: 14px;
+    color: #888;
+    font-weight: 300;
+  }
+
+  .img-container {
+    width: 100%;
+    max-width: 1200px;
+    background: #fff;
+    border: 1px solid #DDDBD4;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .img-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .img-placeholder {
+    width: 100%;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #FAFAF8;
+    color: #AAA;
+    padding: 60px;
+  }
+
+  .img-placeholder-icon {
+    font-size: 48px;
+    opacity: 0.4;
+  }
+
+  .img-placeholder-text {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    color: var(--color-text-tertiary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.8;
   }
+
+  .img-placeholder-path {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #5B7F5E;
+    background: rgba(91,127,94,0.08);
+    padding: 8px 20px;
+    border-radius: 3px;
+    border: 1px solid rgba(91,127,94,0.2);
+  }
+
+  /* ───────────── 페이지 2: 실바니안 (원본 스타일 내장) ───────────── */
+
+  #page-sylvanian {
+    --bg: #F5F4F0;
+    --surface: #ECEAE4;
+    --card: #FFFFFF;
+    --border: #DDDBD4;
+    --accent: #5B7F5E;
+    --accent2: #A0522D;
+    --accent3: #6B8CAE;
+    --text: #1A1A1A;
+    --muted: #666;
+    --cat-color: #5B7F5E;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  #page-sylvanian .cover {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 80px 100px; position: relative; overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background: #F5F4F0;
+  }
+  #page-sylvanian .cover::before {
+    content: ''; position: absolute; top: 0; right: 0; width: 55%; height: 100%;
+    background: linear-gradient(135deg, transparent 0%, #EBF0EB 40%, #DDE8DD 100%); z-index: 0;
+  }
+  #page-sylvanian .cover::after {
+    content: 'POPUP'; position: absolute; right: 60px; bottom: 60px;
+    font-size: 180px; font-weight: 900; color: rgba(91,127,94,0.05);
+    letter-spacing: -10px; line-height: 1; z-index: 0; font-family: 'DM Mono', monospace;
+  }
+  #page-sylvanian .cover-inner { position: relative; z-index: 1; }
+  #page-sylvanian .cover-tag {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  #page-sylvanian .cover-tag::before { content: ''; width: 40px; height: 1px; background: var(--accent); }
+  #page-sylvanian .cover h1 { font-size: clamp(36px, 5vw, 58px); font-weight: 900; line-height: 1.1; margin-bottom: 16px; letter-spacing: -1px; }
+  #page-sylvanian .cover h1 span { color: var(--accent); }
+  #page-sylvanian .cover-sub { font-size: 18px; color: var(--muted); margin-bottom: 48px; font-weight: 300; }
+  #page-sylvanian .cover-meta { display: flex; gap: 48px; }
+  #page-sylvanian .cover-meta-item label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); display: block; margin-bottom: 6px; }
+  #page-sylvanian .cover-meta-item span { font-size: 15px; font-weight: 500; }
+
+  #page-sylvanian section { padding: 80px 100px; border-bottom: 1px solid var(--border); }
+  #page-sylvanian .section-label {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #page-sylvanian .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  #page-sylvanian section h2 { font-size: 28px; font-weight: 700; margin-bottom: 48px; letter-spacing: -0.5px; }
+
+  #page-sylvanian .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 48px; }
+  #page-sylvanian .kpi-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 28px 24px; border-radius: 4px; position: relative; overflow: hidden;
+  }
+  #page-sylvanian .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--accent); }
+  #page-sylvanian .kpi-card.brown::before { background: var(--accent2); }
+  #page-sylvanian .kpi-card.blue::before { background: var(--accent3); }
+  #page-sylvanian .kpi-card.dim::before { background: #AAA; }
+  #page-sylvanian .kpi-label { font-size: 11px; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+  #page-sylvanian .kpi-value { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; line-height: 1; margin-bottom: 6px; }
+  #page-sylvanian .kpi-value.large { font-size: 30px; }
+  #page-sylvanian .kpi-sub { font-size: 11px; color: var(--muted); }
+
+  #page-sylvanian .channel-single {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 36px 40px; border-radius: 4px; border-left: 4px solid var(--accent);
+    margin-bottom: 32px;
+  }
+  #page-sylvanian .channel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  #page-sylvanian .channel-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+  #page-sylvanian .channel-badge {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    padding: 4px 10px; border-radius: 2px;
+    background: rgba(91,127,94,0.1); color: var(--accent);
+  }
+  #page-sylvanian .channel-amount { font-family: 'DM Mono', monospace; font-size: 42px; font-weight: 500; color: var(--accent); margin-bottom: 6px; }
+  #page-sylvanian .channel-detail { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+  #page-sylvanian .channel-detail-item label { font-size: 10px; letter-spacing: 1px; color: var(--muted); display: block; margin-bottom: 4px; }
+  #page-sylvanian .channel-detail-item span { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; }
+
+  #page-sylvanian .info-banner {
+    background: rgba(91,127,94,0.07); border: 1px solid rgba(91,127,94,0.2);
+    padding: 16px 24px; border-radius: 4px; margin-bottom: 0;
+    display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: #3d5e40;
+  }
+
+  #page-sylvanian .daily-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
+  #page-sylvanian .day-cell {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 14px 10px; border-radius: 4px; text-align: center;
+  }
+  #page-sylvanian .day-cell.weekend { border-color: rgba(91,127,94,0.4); }
+  #page-sylvanian .day-cell.top-day { border-color: var(--accent); border-width: 2px; }
+  #page-sylvanian .day-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  #page-sylvanian .day-dow { font-size: 9px; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+  #page-sylvanian .day-bar-wrap { height: 50px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 8px; }
+  #page-sylvanian .day-bar { width: 28px; border-radius: 2px 2px 0 0; }
+  #page-sylvanian .day-amount { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text); }
+  #page-sylvanian .day-qty { font-size: 9px; color: var(--muted); }
+
+  #page-sylvanian .data-table { width: 100%; border-collapse: collapse; }
+  #page-sylvanian .data-table th {
+    text-align: left; padding: 10px 14px;
+    font-size: 10px; letter-spacing: 1.5px; color: var(--muted);
+    border-bottom: 1px solid var(--border); font-weight: 400; text-transform: uppercase;
+  }
+  #page-sylvanian .data-table th:not(:first-child) { text-align: right; }
+  #page-sylvanian .data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 13px; }
+  #page-sylvanian .data-table td:not(:first-child) { text-align: right; }
+  #page-sylvanian .data-table tr:hover td { background: rgba(0,0,0,0.02); }
+  #page-sylvanian .rank-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-right: 12px; }
+  #page-sylvanian .amount-cell { font-family: 'DM Mono', monospace; }
+  #page-sylvanian .bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  #page-sylvanian .inline-bar { height: 4px; border-radius: 2px; background: var(--accent); min-width: 2px; }
+
+  #page-sylvanian .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px; }
+  #page-sylvanian .cat-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 24px 16px; border-radius: 4px; text-align: center; position: relative;
+  }
+  #page-sylvanian .cat-icon { font-size: 24px; margin-bottom: 10px; }
+  #page-sylvanian .cat-name { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  #page-sylvanian .cat-pct { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; margin-bottom: 4px; }
+  #page-sylvanian .cat-amt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  #page-sylvanian .cat-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 3px; background: var(--accent); opacity: 0.5; border-radius: 0 0 4px 4px;
+  }
+
+  #page-sylvanian .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  #page-sylvanian .highlight-card { background: var(--card); border: 1px solid var(--border); padding: 24px; border-radius: 4px; }
+  #page-sylvanian .highlight-icon { font-size: 24px; margin-bottom: 12px; }
+  #page-sylvanian .highlight-title { font-size: 11px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; }
+  #page-sylvanian .highlight-body { font-size: 14px; font-weight: 500; line-height: 1.5; }
+
+  #page-sylvanian .remain-banner {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 24px 32px; border-radius: 4px; margin-bottom: 40px;
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 24px;
+  }
+  #page-sylvanian .remain-item label { font-size: 10px; letter-spacing: 1.5px; color: var(--muted); display: block; margin-bottom: 6px; }
+  #page-sylvanian .remain-item span { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; }
+
+  #page-sylvanian .sp-badge {
+    display: inline-block;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 2px 6px; border-radius: 3px;
+    background: #FFF3CD; color: #856404; border: 1px solid #FFDA6A;
+    margin-left: 6px; vertical-align: middle; white-space: nowrap;
+  }
+
+  #page-sylvanian footer {
+    padding: 40px 100px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #page-sylvanian footer .left { font-size: 12px; color: var(--muted); }
+  #page-sylvanian footer .right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 2px; }
 </style>
+</head>
+<body>
+
+<!-- ═══════════ 탭 네비게이션 ═══════════ -->
+<nav class="tab-nav">
+  <div class="tab-logo">Review 2026</div>
+  <button class="tab-btn active blue" onclick="switchTab('page-1q', this)">
+    <span>MULTI IP 1Q 실적</span>
+    <span class="tab-tag">1Q Review</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('page-sylvanian', this)">
+    <span>실바니안 성수 팝업</span>
+    <span class="tab-tag">Popup Review</span>
+  </button>
+</nav>
+
+<!-- ═══════════ 페이지 1: MULTI IP 1Q ═══════════ -->
+<div id="page-1q" class="page active">
+  <div class="page-1q">
+    <div class="page-1q-header">
+      <div class="page-1q-tag">Performance Report · 2026 Q1</div>
+      <h1 class="page-1q-title">MULTI IP <span>1분기 실적</span></h1>
+      <p class="page-1q-sub">2026년 1Q 전체 IP 매출현황 리뷰</p>
+    </div>
+    <div class="img-container">
+      <img src="1qreview.jpg" alt="MULTI IP 1Q Review"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="img-placeholder" style="display:none;">
+        <div class="img-placeholder-icon">🖼</div>
+        <div class="img-placeholder-text">
+          이미지 파일을 같은 폴더에 놓으면 자동으로 표시됩니다<br>
+          HTML 파일과 동일한 경로에 저장해주세요
+        </div>
+        <div class="img-placeholder-path">1qreview.jpg</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 페이지 2: 실바니안 팝업 ═══════════ -->
+<div id="page-sylvanian" class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-tag">Sales Performance Report</div>
+    <h1>실바니안 패밀리<br><span>성수 팝업</span> 매출현황</h1>
+    <p class="cover-sub">라인프렌즈 스퀘어 성수점 팝업스토어 — 오프라인 단독 운영</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>팝업 기간</label>
+        <span>2026.05.22 ~ 06.07</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>데이터 기준일</label>
+        <span>2026.05.27</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>경과 일수</label>
+        <span>6일 경과</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>잔여 일수</label>
+        <span>11일 잔여</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 01 종합 현황 -->
+<section>
+  <div class="section-label">01 OVERVIEW</div>
+  <h2>종합 매출 현황</h2>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">누적 총 매출 (VAT-)</div>
+      <div class="kpi-value large">62,822,252</div>
+      <div class="kpi-sub">원 (5/22~5/27, 6일)</div>
+    </div>
+    <div class="kpi-card brown">
+      <div class="kpi-label">총 판매 수량</div>
+      <div class="kpi-value large">2,474</div>
+      <div class="kpi-sub">개</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">TR (결제 건수)</div>
+      <div class="kpi-value large">1,570</div>
+      <div class="kpi-sub">건</div>
+    </div>
+    <div class="kpi-card dim">
+      <div class="kpi-label">ATV (객단가, VAT-)</div>
+      <div class="kpi-value large">39,860</div>
+      <div class="kpi-sub">원 / 결제 건</div>
+    </div>
+  </div>
+
+  <div class="channel-single">
+    <div class="channel-header">
+      <div class="channel-title">🏪 오프라인 단독 운영 (라인프렌즈 스퀘어 성수점)</div>
+      <div class="channel-badge">5/22 ~ 6/7</div>
+    </div>
+    <div class="channel-amount">62,822,252<span style="font-size:18px;color:var(--muted)">원</span></div>
+    <div style="font-size:12px;color:var(--muted)">온라인 판매 없음 — 팝업 현장 단독 매출 (VAT 제외 기준)</div>
+    <div class="channel-detail">
+      <div class="channel-detail-item">
+        <label>일 평균 매출</label>
+        <span>10.5M</span>
+      </div>
+      <div class="channel-detail-item">
+        <label>주말 평균 ATV</label>
+        <span>38,760원</span>
+      </div>
+      <div class="channel-detail-item">
+        <label>평일 평균 ATV</label>
+        <span>42,485원</span>
+      </div>
+      <div class="channel-detail-item">
+        <label>UPT (건당 수량)</label>
+        <span>1.84개</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 일별 매출 -->
+<section>
+  <div class="section-label">02 DAILY TREND</div>
+  <h2>일별 매출 추이 (5/22 ~ 5/27)</h2>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:32px 40px;margin-bottom:24px;">
+    <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'Noto Sans KR',sans-serif;">
+      <line x1="60" y1="20" x2="60" y2="200" stroke="#DDDBD4" stroke-width="1"/>
+      <line x1="60" y1="200" x2="740" y2="200" stroke="#DDDBD4" stroke-width="1"/>
+      <line x1="60" y1="50"  x2="740" y2="50"  stroke="#ECEAE4" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="60" y1="95"  x2="740" y2="95"  stroke="#ECEAE4" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="60" y1="140" x2="740" y2="140" stroke="#ECEAE4" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="54" y="53"  text-anchor="end" font-size="10" fill="#999">15M</text>
+      <text x="54" y="98"  text-anchor="end" font-size="10" fill="#999">10M</text>
+      <text x="54" y="143" text-anchor="end" font-size="10" fill="#999">5M</text>
+      <text x="54" y="203" text-anchor="end" font-size="10" fill="#999">0</text>
+      <polygon points="60,51 196,50 332,51 468,114 604,175 740,145 740,200 60,200" fill="rgba(91,127,94,0.08)" stroke="none"/>
+      <polyline points="60,51 196,50 332,51 468,114 604,175 740,145" fill="none" stroke="#5B7F5E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="60"  cy="51"  r="5" fill="#5B7F5E" stroke="white" stroke-width="2"/>
+      <circle cx="196" cy="50"  r="5" fill="#5B7F5E" stroke="white" stroke-width="2"/>
+      <circle cx="332" cy="51"  r="5" fill="#5B7F5E" stroke="white" stroke-width="2"/>
+      <circle cx="468" cy="114" r="5" fill="#8B8B6E" stroke="white" stroke-width="2"/>
+      <circle cx="604" cy="175" r="5" fill="#8B8B6E" stroke="white" stroke-width="2"/>
+      <circle cx="740" cy="145" r="5" fill="#8B8B6E" stroke="white" stroke-width="2"/>
+      <text x="60"  y="43"  text-anchor="middle" font-size="11" fill="#3d5e40" font-weight="600">15.3M</text>
+      <text x="196" y="41"  text-anchor="middle" font-size="11" fill="#3d5e40" font-weight="600">15.3M</text>
+      <text x="332" y="43"  text-anchor="middle" font-size="11" fill="#3d5e40" font-weight="600">15.2M</text>
+      <text x="468" y="106" text-anchor="middle" font-size="11" fill="#666">8.8M</text>
+      <text x="604" y="167" text-anchor="middle" font-size="11" fill="#666">2.6M</text>
+      <text x="740" y="137" text-anchor="middle" font-size="11" fill="#666">5.6M</text>
+      <text x="60"  y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/22</text>
+      <text x="60"  y="230" text-anchor="middle" font-size="10" fill="#888">금</text>
+      <text x="196" y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/23</text>
+      <text x="196" y="230" text-anchor="middle" font-size="10" fill="#888">토</text>
+      <text x="332" y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/24</text>
+      <text x="332" y="230" text-anchor="middle" font-size="10" fill="#888">일</text>
+      <text x="468" y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/25</text>
+      <text x="468" y="230" text-anchor="middle" font-size="10" fill="#888">월</text>
+      <text x="604" y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/26</text>
+      <text x="604" y="230" text-anchor="middle" font-size="10" fill="#888">화</text>
+      <text x="740" y="218" text-anchor="middle" font-size="11" fill="#555" font-weight="600">5/27</text>
+      <text x="740" y="230" text-anchor="middle" font-size="10" fill="#888">수</text>
+      <polyline points="60,122 196,120 332,120 468,157 604,186 740,176" fill="none" stroke="#6B8CAE" stroke-width="1.5" stroke-dasharray="5,3" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="60"  cy="122" r="3" fill="#6B8CAE"/>
+      <circle cx="196" cy="120" r="3" fill="#6B8CAE"/>
+      <circle cx="332" cy="120" r="3" fill="#6B8CAE"/>
+      <circle cx="468" cy="157" r="3" fill="#6B8CAE"/>
+      <circle cx="604" cy="186" r="3" fill="#6B8CAE"/>
+      <circle cx="740" cy="176" r="3" fill="#6B8CAE"/>
+      <line x1="600" y1="16" x2="618" y2="16" stroke="#5B7F5E" stroke-width="2.5"/>
+      <circle cx="609" cy="16" r="3.5" fill="#5B7F5E" stroke="white" stroke-width="1.5"/>
+      <text x="622" y="20" font-size="11" fill="#3d5e40">매출 (VAT-)</text>
+      <line x1="700" y1="16" x2="718" y2="16" stroke="#6B8CAE" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="709" cy="16" r="2.5" fill="#6B8CAE"/>
+      <text x="722" y="20" font-size="11" fill="#6B8CAE">TR</text>
+    </svg>
+
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/22 금</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 383</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 39,860</div></div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/23 토</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 394</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 38,886</div></div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/24 일</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 394</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 38,632</div></div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/25 월</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 213</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 41,349</div></div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/26 화</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 67</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 38,535</div></div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">5/27 수</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">TR 119</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">ATV 47,270</div></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" style="margin-bottom:0">
+    <div class="kpi-card"><div class="kpi-label">🏆 최고 매출일</div><div class="kpi-value">15,320,911</div><div class="kpi-sub">원 (5/23 토 · VAT-)</div></div>
+    <div class="kpi-card dim"><div class="kpi-label">📉 최저 매출일</div><div class="kpi-value">2,581,816</div><div class="kpi-sub">원 (5/26 화 · VAT-)</div></div>
+    <div class="kpi-card"><div class="kpi-label">📅 주말 평균 TR</div><div class="kpi-value">394</div><div class="kpi-sub">건/일 (5/23~24)</div></div>
+    <div class="kpi-card dim"><div class="kpi-label">📅 평일 평균 TR</div><div class="kpi-value">196</div><div class="kpi-sub">건/일 (5/22·25·26·27)</div></div>
+  </div>
+
+  <div style="margin-top:20px;background:#fffbe6;border:1px solid #e6c700;border-radius:4px;padding:14px 20px;font-size:13px;color:#7a6000">
+    💡 <strong>5/26(화) TR 67건 저조</strong> — 연휴 다음날 + 스페셜 에디션 전 품목 품절로 인한 수요 감소. 5/27 추가 입고 완료, 잔여 기간 재발주 검토하여 매출 회복 예정
+  </div>
+</section>
+
+<!-- 03 카테고리 -->
+<section>
+  <div class="section-label">03 CATEGORY</div>
+  <h2>카테고리별 매출 구성</h2>
+
+  <div class="cat-grid">
+    <div class="cat-card" style="border-top:2px solid #5B7F5E"><div class="cat-icon">🧸</div><div class="cat-name">피규어</div><div class="cat-pct">36.7%</div><div class="cat-amt" style="margin-bottom:4px">25,211,088원</div><div style="font-size:10px;color:var(--muted)">909개 · 29 SKU</div><div style="font-size:10px;color:var(--muted);margin-top:2px">ST 14.6%</div></div>
+    <div class="cat-card" style="border-top:2px solid #A0522D"><div class="cat-icon">🎀</div><div class="cat-name">세트</div><div class="cat-pct">35.3%</div><div class="cat-amt" style="margin-bottom:4px">24,237,219원</div><div style="font-size:10px;color:var(--muted)">533개 · 65 SKU</div><div style="font-size:10px;color:var(--muted);margin-top:2px">ST 17.2%</div></div>
+    <div class="cat-card" style="border-top:2px solid #6B8CAE"><div class="cat-icon">🔑</div><div class="cat-name">키링</div><div class="cat-pct">20.4%</div><div class="cat-amt" style="margin-bottom:4px">14,010,070원</div><div style="font-size:10px;color:var(--muted)">786개 · 6 SKU</div><div style="font-size:10px;color:#1A7A52;margin-top:2px;font-weight:600">ST 36.4% ▲</div></div>
+    <div class="cat-card" style="border-top:2px solid #8B8B6E"><div class="cat-icon">🏠</div><div class="cat-name">가족세트</div><div class="cat-pct">6.3%</div><div class="cat-amt" style="margin-bottom:4px">4,302,787원</div><div style="font-size:10px;color:var(--muted)">202개 · 30 SKU</div><div style="font-size:10px;color:var(--muted);margin-top:2px">ST 14.3%</div></div>
+    <div class="cat-card" style="border-top:2px solid #999"><div class="cat-icon">🪑</div><div class="cat-name">소품</div><div class="cat-pct">1.3%</div><div class="cat-amt" style="margin-bottom:4px">901,140원</div><div style="font-size:10px;color:var(--muted)">44개 · 11 SKU</div><div style="font-size:10px;color:var(--muted);margin-top:2px">ST 13.9%</div></div>
+  </div>
+</section>
+
+<!-- 04 상품 TOP15 -->
+<section>
+  <div class="section-label">04 TOP PRODUCTS</div>
+  <h2>상품별 매출 TOP 15</h2>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>순위 · 상품명</th>
+        <th>매출액</th>
+        <th>판매수량</th>
+        <th>비중</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="rank-num">01</span>40주년 초콜릿토끼 가족 세트 (5848)</td><td class="amount-cell">2,634,005</td><td class="amount-cell">24개</td><td><div class="bar-cell"><div class="inline-bar" style="width:76px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">3.8%</span></div></td></tr>
+      <tr><td><span class="rank-num">02</span>아기 키링 (초콜릿 토끼) (2111)<span class="sp-badge">스페셜</span></td><td class="amount-cell">2,339,361</td><td class="amount-cell">140개</td><td><div class="bar-cell"><div class="inline-bar" style="width:68px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">3.4%</span></div></td></tr>
+      <tr><td><span class="rank-num">03</span>아기 키링 (호두 다람쥐) (2113)<span class="sp-badge">스페셜</span></td><td class="amount-cell">2,335,266</td><td class="amount-cell">139개</td><td><div class="bar-cell"><div class="inline-bar" style="width:68px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">3.4%</span></div></td></tr>
+      <tr><td><span class="rank-num">04</span>아기 키링 (턱시도 고양이) (2114)<span class="sp-badge">스페셜</span></td><td class="amount-cell">2,149,511</td><td class="amount-cell">128개</td><td><div class="bar-cell"><div class="inline-bar" style="width:62px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">3.1%</span></div></td></tr>
+      <tr><td><span class="rank-num">05</span>단짝 아기친구들의 유치원 가는 날 (5747)</td><td class="amount-cell">2,126,490</td><td class="amount-cell">79개</td><td><div class="bar-cell"><div class="inline-bar" style="width:62px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">3.1%</span></div></td></tr>
+      <tr><td><span class="rank-num">06</span>아기키링 (플러피 파카 밀크 토끼) (2219)<span class="sp-badge">스페셜</span></td><td class="amount-cell">1,938,220</td><td class="amount-cell">130개</td><td><div class="bar-cell"><div class="inline-bar" style="width:56px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.8%</span></div></td></tr>
+      <tr><td><span class="rank-num">07</span>아기키링 (블루벨 초콜릿 토끼) (2197)<span class="sp-badge">스페셜</span></td><td class="amount-cell">1,898,313</td><td class="amount-cell">128개</td><td><div class="bar-cell"><div class="inline-bar" style="width:56px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.8%</span></div></td></tr>
+      <tr><td><span class="rank-num">08</span>블라인드백 15차 (아기 숲속요정) (5872)</td><td class="amount-cell">1,881,542</td><td class="amount-cell">192개</td><td><div class="bar-cell"><div class="inline-bar" style="width:54px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.7%</span></div></td></tr>
+      <tr><td><span class="rank-num">09</span>아기키링 (에메랄드 그린 턱시도 고양이) (2197)<span class="sp-badge">스페셜</span></td><td class="amount-cell">1,797,265</td><td class="amount-cell">121개</td><td><div class="bar-cell"><div class="inline-bar" style="width:52px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.6%</span></div></td></tr>
+      <tr><td><span class="rank-num">10</span>40주년 솜토끼 가족 세트 (5863)</td><td class="amount-cell">1,691,399</td><td class="amount-cell">20개</td><td><div class="bar-cell"><div class="inline-bar" style="width:50px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.5%</span></div></td></tr>
+      <tr><td><span class="rank-num">11</span>페르시안 고양이 쌍둥이 (5457)</td><td class="amount-cell">1,680,625</td><td class="amount-cell">89개</td><td><div class="bar-cell"><div class="inline-bar" style="width:48px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.4%</span></div></td></tr>
+      <tr><td><span class="rank-num">12</span>베이비 코스튬 젤리피쉬 트리오 (2158)<span class="sp-badge">스페셜</span></td><td class="amount-cell">1,606,392</td><td class="amount-cell">54개</td><td><div class="bar-cell"><div class="inline-bar" style="width:46px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.3%</span></div></td></tr>
+      <tr><td><span class="rank-num">13</span>유치원 친구들 세트 (5672)</td><td class="amount-cell">1,575,882</td><td class="amount-cell">32개</td><td><div class="bar-cell"><div class="inline-bar" style="width:46px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.3%</span></div></td></tr>
+      <tr><td><span class="rank-num">14</span>단짝 아기친구들의 돌고래 물놀이 (5749)</td><td class="amount-cell">1,503,056</td><td class="amount-cell">43개</td><td><div class="bar-cell"><div class="inline-bar" style="width:44px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">2.2%</span></div></td></tr>
+      <tr><td><span class="rank-num">15</span>레인코트 일곱 베이비 세트 (2083)<span class="sp-badge">스페셜</span></td><td class="amount-cell">1,333,701</td><td class="amount-cell">30개</td><td><div class="bar-cell"><div class="inline-bar" style="width:38px"></div><span style="font-family:'DM Mono',monospace;font-size:11px">1.9%</span></div></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 05 인사이트 -->
+<section>
+  <div class="section-label">05 INSIGHTS</div>
+  <h2>주요 인사이트 및 특이사항</h2>
+
+  <div class="highlights" style="grid-template-columns:repeat(3,1fr)">
+    <div class="highlight-card" style="border-top:2px solid var(--accent)"><div class="highlight-icon">🏆</div><div class="highlight-title">BEST SELLER</div><div class="highlight-body">40주년 초콜릿토끼 가족 세트 1위 (2.6M). 아기 키링 5종이 TOP10 중 5자리를 차지하며 소단가·고회전 구매 패턴 확인</div></div>
+    <div class="highlight-card" style="border-top:2px solid var(--accent2)"><div class="highlight-icon">🔑</div><div class="highlight-title">키링 카테고리</div><div class="highlight-body">6 SKU로 매출 비중 20.4%, ST 36.4%로 전 카테고리 중 최고. 단가 대비 구매 저항이 낮아 객수 확대와 UPT 상승에 기여</div></div>
+    <div class="highlight-card" style="border-top:2px solid #AAA"><div class="highlight-icon">📦</div><div class="highlight-title">스페셜에디션 품절</div><div class="highlight-body">5/26 스페셜 에디션 전 품목 품절로 당일 TR 67건 급감. 5/27 추가 입고 완료하였으며 잔여 기간 재발주 검토하여 매출 회복 예정</div></div>
+  </div>
+</section>
+
+<!-- 06 ST% -->
+<section>
+  <div class="section-label">06 SELL-THROUGH</div>
+  <h2>제품별 ST%</h2>
+
+  <div class="kpi-grid" style="margin-bottom:32px">
+    <div class="kpi-card"><div class="kpi-label">전체 평균 ST%</div><div class="kpi-value large">18.7%</div><div class="kpi-sub">발주 13,200개 / 판매 2,474개 (6일)</div></div>
+    <div class="kpi-card" style="border-top-color:#22a06b"><div class="kpi-label">100% 소진 (완판)</div><div class="kpi-value" style="color:#22a06b">4개</div><div class="kpi-sub">SKU</div></div>
+    <div class="kpi-card" style="border-top-color:#f5a623"><div class="kpi-label">30~99% (양호)</div><div class="kpi-value" style="color:#f5a623">37개</div><div class="kpi-sub">SKU</div></div>
+    <div class="kpi-card" style="border-top-color:#d0021b"><div class="kpi-label">30% 미만 (부진)</div><div class="kpi-value" style="color:#d0021b">100개</div><div class="kpi-sub">SKU — 잔여 기간 판매 전략 필요</div></div>
+  </div>
+
+  <div style="margin-bottom:16px;padding:12px 16px;background:#f0f8f0;border:1px solid rgba(91,127,94,0.25);border-radius:4px;font-size:12px;color:#3d5e40">
+    💡 팝업 운영 6일 경과 / 전체 17일 중 35% 시점 기준 — 잔여 11일(65%) 동안 추가 소화 가능. 완판 4개 SKU는 즉시 재발주 검토 필요.
+  </div>
+
+  <table class="data-table" style="font-size:12px">
+    <thead>
+      <tr>
+        <th>카테고리</th>
+        <th>제품명</th>
+        <th style="text-align:right">발주</th>
+        <th style="text-align:right">판매</th>
+        <th style="text-align:center;min-width:160px">ST%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5" style="padding:4px 14px;background:#e8f5e9;border-bottom:1px solid #22a06b"><span style="font-size:10px;letter-spacing:1px;color:#1a7a2a">▼ 완판 (100%)</span></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>레인코트 일곱 베이비 세트 (2083)</td><td class="amount-cell">30</td><td class="amount-cell">30</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="100" style="height:6px;border-radius:3px;background:#22a06b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#22a06b;min-width:40px;text-align:right">100.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>블라인드백 15차 (아기 숲속요정) (5872)</td><td class="amount-cell">192</td><td class="amount-cell">192</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="100" style="height:6px;border-radius:3px;background:#22a06b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#22a06b;min-width:40px;text-align:right">100.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>40주년 초콜릿토끼 가족 세트 (5848)</td><td class="amount-cell">24</td><td class="amount-cell">24</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="100" style="height:6px;border-radius:3px;background:#22a06b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#22a06b;min-width:40px;text-align:right">100.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>40주년 프렌즈 세트 (5843)</td><td class="amount-cell">30</td><td class="amount-cell">30</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="100" style="height:6px;border-radius:3px;background:#22a06b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#22a06b;min-width:40px;text-align:right">100.0%</span></div></td></tr>
+      <tr><td colspan="5" style="padding:4px 14px;background:#fffbe6;border-bottom:1px solid #f5a623"><span style="font-size:10px;letter-spacing:1px;color:#b37a00">▼ 30~99% 양호</span></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>40주년 솜토끼 가족 세트 (5863)</td><td class="amount-cell">24</td><td class="amount-cell">20</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="83.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">83.3%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>시바견 대가족 (2124)</td><td class="amount-cell">12</td><td class="amount-cell">9</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="75.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">75.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>모여라! 아기고양이 세트 (2170)</td><td class="amount-cell">24</td><td class="amount-cell">17</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="70.8" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">70.8%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>시트러스 버드 가족 (5860)</td><td class="amount-cell">30</td><td class="amount-cell">20</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="66.7" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">66.7%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>프렌치 불독 대가족 (2160)</td><td class="amount-cell">12</td><td class="amount-cell">8</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="66.7" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">66.7%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>귀여운 핫도그 아기들 (2251)</td><td class="amount-cell">36</td><td class="amount-cell">23</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="63.9" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">63.9%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>베이비랜드 파도타기놀이 (5820)</td><td class="amount-cell">30</td><td class="amount-cell">19</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="63.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">63.3%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>유치원 콘서트 세트 (5817)</td><td class="amount-cell">30</td><td class="amount-cell">18</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="60.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">60.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>핫도그 벤 (2252)</td><td class="amount-cell">12</td><td class="amount-cell">7</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="58.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">58.3%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>버섯과 꽃 자수 친구들 세트 (2181)</td><td class="amount-cell">24</td><td class="amount-cell">13</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="54.2" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">54.2%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>유치원 친구들 세트 (5672)</td><td class="amount-cell">60</td><td class="amount-cell">32</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="53.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">53.3%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>비스킷 곰 남매의 달콤한 피크닉 (5852)</td><td class="amount-cell">30</td><td class="amount-cell">15</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="50.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">50.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>라떼 고양이의 햄버거 카트 (5757)</td><td class="amount-cell">24</td><td class="amount-cell">12</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="50.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">50.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>달빛 퍼레이드 세트 (5816)</td><td class="amount-cell">24</td><td class="amount-cell">12</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="50.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">50.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>흰 오목눈이 가족 (2187)</td><td class="amount-cell">12</td><td class="amount-cell">6</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="50.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">50.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>베이비 베이커리 친구들 (2177)</td><td class="amount-cell">36</td><td class="amount-cell">18</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="50.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">50.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>스푸키 엘리베이터 유령하우스 (5542)</td><td class="amount-cell">48</td><td class="amount-cell">22</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="45.8" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">45.8%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>베이비 코스튬 젤리피쉬 트리오 (2158)</td><td class="amount-cell">120</td><td class="amount-cell">54</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="45.0" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">45.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>아메리칸 컬 고양이 남매의 디저트 파티 (2151)</td><td class="amount-cell">36</td><td class="amount-cell">16</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="44.4" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">44.4%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>단짝 아기친구들의 유치원 가는 날 (5747)</td><td class="amount-cell">180</td><td class="amount-cell">79</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="43.9" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">43.9%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>아메리칸 컬 고양이 가족 (2150)</td><td class="amount-cell">12</td><td class="amount-cell">5</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="41.7" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">41.7%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>단짝 아기친구들의 돌고래 물놀이 (5749)</td><td class="amount-cell">108</td><td class="amount-cell">43</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="39.8" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">39.8%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기 키링 (초콜릿 토끼) (2111)</td><td class="amount-cell">360</td><td class="amount-cell">140</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="38.9" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">38.9%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기 키링 (호두 다람쥐) (2113)</td><td class="amount-cell">360</td><td class="amount-cell">139</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="38.6" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">38.6%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>흰 오목눈이 가족의 통나무 오두막집 (2250)</td><td class="amount-cell">8</td><td class="amount-cell">3</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="37.5" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">37.5%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>해달 자매의 반짝이는 스노클링 (5804)</td><td class="amount-cell">30</td><td class="amount-cell">11</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="36.7" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">36.7%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>밀크토끼 세쌍둥이의 목욕놀이 (5707)</td><td class="amount-cell">30</td><td class="amount-cell">11</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="36.7" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">36.7%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기키링 (플러피 파카 밀크 토끼) (2219)</td><td class="amount-cell">360</td><td class="amount-cell">130</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="36.1" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">36.1%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기 키링 (턱시도 고양이) (2114)</td><td class="amount-cell">360</td><td class="amount-cell">128</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="35.6" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">35.6%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기키링 (블루벨 초콜릿 토끼) (2197)</td><td class="amount-cell">360</td><td class="amount-cell">128</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="35.6" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">35.6%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">키링</td><td>아기키링 (에메랄드 그린 턱시도 고양이)</td><td class="amount-cell">360</td><td class="amount-cell">121</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="33.6" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">33.6%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>비밀 다락방 이층집 추천 가구 세트 (2166)</td><td class="amount-cell">12</td><td class="amount-cell">4</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="33.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">33.3%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>베이비 딸기 코스튬 친구들 (2173)</td><td class="amount-cell">36</td><td class="amount-cell">12</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="33.3" style="height:6px;border-radius:3px;background:#f5a623"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#b37a00;min-width:40px;text-align:right">33.3%</span></div></td></tr>
+      <tr><td colspan="5" style="padding:4px 14px;background:#fff0f0;border-bottom:1px solid #d0021b"><span style="font-size:10px;letter-spacing:1px;color:#a00">▼ 30% 미만 (부진 — 100 SKU, 일부만 표시)</span></td></tr>
+      <tr><td style="color:var(--muted)">세트</td><td>플로라 토끼 남매의 꽃 가꾸기 (5736)</td><td class="amount-cell">48</td><td class="amount-cell">15</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="31.2" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">31.2%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>페르시안 고양이 자매의 러블리 자수 드레스 세트</td><td class="amount-cell">60</td><td class="amount-cell">18</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="30.0" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">30.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">가족세트</td><td>눈표범 가족 (5814)</td><td class="amount-cell">30</td><td class="amount-cell">9</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="30.0" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">30.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>페르시안 고양이 쌍둥이 (5457)</td><td class="amount-cell">330</td><td class="amount-cell">89</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="27.0" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">27.0%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>블라인드백 14차 (아기 건축가) (5838)</td><td class="amount-cell">1,280</td><td class="amount-cell">80</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="6.2" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">6.2%</span></div></td></tr>
+      <tr><td style="color:var(--muted)">피규어</td><td>호두다람쥐 쌍둥이 (5421)</td><td class="amount-cell">360</td><td class="amount-cell">8</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div class="st-bar" data-pct="2.2" style="height:6px;border-radius:3px;background:#d0021b"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">2.2%</span></div></td></tr>
+      <tr><td style="color:var(--muted)" colspan="2">미판매 (0%) SKU — 로얄 호텔 세트, 클래식 컨트리 하우스, 베이비랜드 콘서트 세트 外 7개</td><td class="amount-cell" colspan="2" style="color:#d0021b;text-align:right">10개 SKU</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div style="height:6px;border-radius:3px;background:#eee;width:4px"></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:#d0021b;min-width:40px;text-align:right">0.0%</span></div></td></tr>
+      <tr style="background:#F5F4F0;font-weight:600">
+        <td colspan="2" style="padding:14px;font-size:13px">TOTAL (141 SKU)</td>
+        <td class="amount-cell" style="font-weight:700">13,200</td>
+        <td class="amount-cell" style="font-weight:700">2,474</td>
+        <td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><div style="height:8px;border-radius:3px;background:#5B7F5E;width:24px"></div><span style="font-family:'DM Mono',monospace;font-size:13px;color:#5B7F5E;font-weight:700;min-width:40px;text-align:right">18.7%</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <div class="left">
+    <div style="font-weight:600;margin-bottom:4px">실바니안 패밀리 × LFSQ 성수 팝업 매출현황 보고</div>
+    <div>데이터 기준: 2026년 5월 27일 / 오프라인 5/22~5/27 (6일 경과, 잔여 11일)</div>
+  </div>
+  <div class="right">INTERNAL USE ONLY</div>
+</footer>
+
+</div><!-- /page-sylvanian -->
+
 <script>
-const { useState, useEffect, useRef } = React;
-
-const productData = [
-  {
-    id: 1,
-    name: "에어글로우 울트라 슬림 재킷",
-    sku: "JKT-2025-001",
-    category: "아우터",
-    quantity: 350,
-    revenue: "₩52,430,000",
-    stockDate: "2025-05-08",
-    launchDate: "2025-05-15",
-    note: "시즌 대표 상품. 광고 소재 우선 적용 예정. MD 추천 노출 요청.",
-    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80"
-  },
-  {
-    id: 2,
-    name: "무드라이트 드레이프 원피스",
-    sku: "DRS-2025-042",
-    category: "원피스",
-    quantity: 210,
-    revenue: "₩38,850,000",
-    stockDate: "2025-05-10",
-    launchDate: "2025-05-17",
-    note: "바이어 선주문 완료. 물류팀 우선 배치 협의 필요.",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80"
-  },
-  {
-    id: 3,
-    name: "어반코어 하이웨이스트 팬츠",
-    sku: "PNT-2025-017",
-    category: "하의",
-    quantity: 480,
-    revenue: "₩61,200,000",
-    stockDate: "2025-05-05",
-    launchDate: "2025-05-12",
-    note: "컬러웨이 3종 동시 출시. CS팀 사이즈 가이드 사전 공유 요청.",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80"
-  }
-];
-
-function ArrowLeft() {
-  return React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
-    React.createElement('polyline', { points: '15 18 9 12 15 6' })
-  );
-}
-function ArrowRight() {
-  return React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
-    React.createElement('polyline', { points: '9 18 15 12 9 6' })
-  );
-}
-
-function App() {
-  const [idx, setIdx] = useState(0);
-  const [anim, setAnim] = useState('');
-  const p = productData[idx];
-
-  function goTo(next, dir) {
-    setAnim(dir === 1 ? 'exit-left' : 'exit-right');
-    setTimeout(() => {
-      setIdx(next);
-      setAnim('');
-    }, 220);
+  function switchTab(pageId, btn) {
+    // 모든 페이지 숨기기
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // 선택된 페이지·버튼 활성화
+    document.getElementById(pageId).classList.add('active');
+    btn.classList.add('active');
+    // 상단으로 스크롤
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function prev() { if (idx > 0) goTo(idx - 1, -1); }
-  function next() { if (idx < productData.length - 1) goTo(idx + 1, 1); }
-
-  return React.createElement('div', null,
-    React.createElement('div', { className: 'header-bar' },
-      React.createElement('span', { className: 'report-title' }, '이번 달 신제품 출시 라인업 보고'),
-      React.createElement('span', { className: 'counter-text' }, (idx + 1) + ' / ' + productData.length)
-    ),
-
-    React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
-      React.createElement('button', { className: 'nav-btn', onClick: prev, disabled: idx === 0 },
-        React.createElement(ArrowLeft)
-      ),
-
-      React.createElement('div', { style: { flex: 1, overflow: 'hidden' } },
-        React.createElement('div', { className: 'slide-wrapper ' + anim },
-          React.createElement('div', { className: 'slide-card' },
-            React.createElement('div', { className: 'img-panel' },
-              React.createElement('img', { src: p.image, alt: p.name }),
-              React.createElement('div', { className: 'badge-new' }, 'NEW')
-            ),
-            React.createElement('div', { className: 'info-panel' },
-              React.createElement('div', null,
-                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' } },
-                  React.createElement('span', { style: { fontSize: '11px', fontWeight: 600, color: '#1565C0', background: '#E6F1FB', padding: '2px 8px', borderRadius: '20px' } }, p.category)
-                ),
-                React.createElement('h2', { className: 'product-name' }, p.name),
-                React.createElement('p', { className: 'sku-code' }, 'SKU: ' + p.sku)
-              ),
-
-              React.createElement('div', { className: 'info-grid' },
-                React.createElement('div', { className: 'info-item' },
-                  React.createElement('span', { className: 'info-label' }, '수량'),
-                  React.createElement('span', { className: 'info-value' }, p.quantity.toLocaleString() + ' 개')
-                ),
-                React.createElement('div', { className: 'info-item' },
-                  React.createElement('span', { className: 'info-label' }, '매출볼륨 (VAT 포함)'),
-                  React.createElement('span', { className: 'info-value accent' }, p.revenue)
-                ),
-                React.createElement('div', { className: 'info-item' },
-                  React.createElement('span', { className: 'info-label' }, '입고 일정'),
-                  React.createElement('span', { className: 'info-value date-accent' }, p.stockDate)
-                ),
-                React.createElement('div', { className: 'info-item' },
-                  React.createElement('span', { className: 'info-label' }, '출시 일정'),
-                  React.createElement('span', { className: 'info-value date-accent' }, p.launchDate)
-                )
-              ),
-
-              React.createElement('div', { className: 'note-box' },
-                React.createElement('div', { className: 'note-label' }, '비고'),
-                React.createElement('div', { className: 'note-text' }, p.note)
-              )
-            )
-          )
-        )
-      ),
-
-      React.createElement('button', { className: 'nav-btn', onClick: next, disabled: idx === productData.length - 1 },
-        React.createElement(ArrowRight)
-      )
-    ),
-
-    React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' } },
-      productData.map((_, i) =>
-        React.createElement('div', {
-          key: i,
-          className: 'dot ' + (i === idx ? 'active' : ''),
-          onClick: () => i !== idx && goTo(i, i > idx ? 1 : -1)
-        })
-      )
-    )
-  );
-}
-
-ReactDOM.render(React.createElement(App), document.getElementById('root'));
+  // ST 바 너비 초기화
+  document.querySelectorAll('.st-bar').forEach(el => {
+    const pct = parseFloat(el.dataset.pct);
+    el.style.width = (pct * 1.3) + 'px';
+  });
 </script>
+
+</body>
+</html>
